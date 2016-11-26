@@ -4,7 +4,8 @@
     <title>Trail Traffic</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <script src='js/trailTraffic.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src='js/trailTraffic.js'></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
