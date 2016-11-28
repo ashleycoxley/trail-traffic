@@ -1,10 +1,11 @@
 import requests
 import json
+import os
 
-ACCESS_TOKEN = 'STRAVA_KEY'
+STRAVA_ACCESS_TOKEN = os.environ['STRAVA_ACCESS_TOKEN']
 REDWOOD_SEGMENTS = [6333339, 799775, 6236074, 653093, 6236074, 3636730]
 
-auth_header = {'Authorization': "Bearer " + ACCESS_TOKEN}
+auth_header = {'Authorization': "Bearer " + STRAVA_ACCESS_TOKEN}
 segment_info_url = "https://www.strava.com/api/v3/segments/%s"
 
 redwood_segment_info = []
