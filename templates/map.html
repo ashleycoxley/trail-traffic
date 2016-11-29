@@ -10,6 +10,15 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
+    <div class='sidebar'>
+      <h2>Trail Traffic</h2>
+      <h4>Redwood Regional Park</h4>
+      <ul id="segment-list" data-bind="foreach: segmentList">
+        <a href="#" data-bind="click: $parent.selectSegment.bind($data, $index())">
+          <li data-bind="text: name"></li>
+        </a>
+      </ul>
+    </div>
     <div id="map"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkaVmPwWBYInijSeNjO8OOmskds9nEDzc&libraries=geometry&callback=initializeMap" async defer></script>
   </body>
