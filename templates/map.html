@@ -13,9 +13,10 @@
     <div class='sidebar'>
       <h2>Trail Traffic</h2>
       <h4>Redwood Regional Park</h4>
-      <ul id="segment-list" data-bind="foreach: segmentList">
-        <a href="#" data-bind="click: $parent.selectSegment.bind($data, $index())">
-          <li data-bind="text: name"></li>
+      <input placeholder="Search for a segment" type="search" data-bind="value:searchInput, valueUpdate:'keyup'"></input>
+      <ul id="segment-list" data-bind="foreach:filterSegments">
+        <a href="#" data-bind="click:$parent.selectSegment"> 
+          <li data-bind="text:name"></li>
         </a>
       </ul>
     </div>

@@ -26,3 +26,7 @@ h2,h4 {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+input {
+  margin-left: 10px;
+}
