@@ -13,21 +13,27 @@ function initializeMap() {
 $(document).ready(function() {
 
   var Segment = function(data) {
-    var own = this;
+    var thisSegment = this;
     this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);
+
+    this.startPt = ko.computed(function() {
+      var lat = data.start_latlng[0];
+      var lng = data.start_latlng[1];
+      return new google.maps.LatLng(lat, lng);
+    });
 
     this.infoWindow = new google.maps.InfoWindow({
       content: "<b>" + data.name + "</b><br>"
     });
 
     this.setTrafficData = ko.computed(function() {
-      var trafficURL = '/traffic/' + own.id();
+      var trafficURL = '/traffic/' + thisSegment.id();
       $.get(trafficURL, function(data) {
-        var traffic_content = "<b>" + own.name() + "</b><br>" +
+        var traffic_content = "<b>" + thisSegment.name() + "</b><br>" +
                               data.traffic_count.toString() +
                               " bicyclists in the past 7 days";
-        own.infoWindow.setOptions({
+        thisSegment.infoWindow.setOptions({
           content: traffic_content
         });
       });
@@ -39,7 +45,7 @@ $(document).ready(function() {
 
     this.mapLine = ko.computed(function() {
       return new google.maps.Polyline({
-        path: own.decodedSegment(),
+        path: thisSegment.decodedSegment(),
         geodesic: true,
         strokeColor: '#FF0000',
         strokeOpacity: 1,
@@ -47,21 +53,42 @@ $(document).ready(function() {
       });
     });
 
-    this.displayedOnMap = ko.observable(true);
+    this.segmentDisplayed = ko.observable(true);
 
     this.displayLine = ko.computed(function() {
-      if (own.displayedOnMap() === true) {
-        own.mapLine().setMap(map);
+      if (thisSegment.segmentDisplayed() === true) {
+        thisSegment.mapLine().setMap(map);
       } else {
-        own.mapLine().setMap(null);
+        thisSegment.mapLine().setMap(null);
+      }
+    });
+
+    this.segmentSelected = ko.observable(false);
+
+    this.selectSegment = ko.computed(function() {
+      if (thisSegment.segmentSelected() === true) {
+        thisSegment.mapLine().setOptions({
+          strokeColor: "#000000"
+        });
+        thisSegment.infoWindow.setPosition(thisSegment.startPt());
+        thisSegment.infoWindow.open(map);
+      } else {
+        thisSegment.mapLine().setOptions({
+          strokeColor: "#FF0000"
+        });
+        thisSegment.infoWindow.close(map);
       }
     });
 
     this.setSegmentClickHandler = ko.computed(function() {
-      own.mapLine().addListener('click', function(event) {
-        var currentEvent = event;
-        own.infoWindow.setPosition(currentEvent.latLng);
-        own.infoWindow.open(map);
+      thisSegment.mapLine().addListener('click', function(event) {
+        thisSegment.segmentSelected(true);
+      });
+    });
+
+    this.setSegmentUnclickHandler = ko.computed(function() {
+      google.maps.event.addListener(map, "click", function() {
+        thisSegment.segmentSelected(false);
       });
     });
   };
@@ -81,28 +108,24 @@ $(document).ready(function() {
       });
     });
 
-    this.selectSegment = function(displayListItem) {
+    this.changeSelected = function(displayListItem) {
       self.segmentList().forEach(function(segment) {
-        segment.mapLine().setOptions({
-          strokeColor: "#FF0000"
-        });
+        segment.segmentSelected(false);
       });
-      displayListItem.mapLine().setOptions({
-        strokeColor: "#000000"
-      });
+      displayListItem.segmentSelected(true);
     };
 
     this.filterSegments = ko.computed(function() {
       if (!self.searchInput()) {
         self.segmentList().forEach(function(segment) {
-          segment.displayedOnMap(true);
+          segment.segmentDisplayed(true);
         });
         return self.segmentList();
       }
       var searchInputLower = self.searchInput().toLowerCase();
       return ko.utils.arrayFilter(self.segmentList(), function(segment) {
         var match = segment.name().toLowerCase().indexOf(searchInputLower) >= 0;
-        segment.displayedOnMap(match);
+        segment.segmentDisplayed(match);
         return match;
       });
     });

@@ -15,7 +15,7 @@
       <h4>Redwood Regional Park</h4>
       <input placeholder="Search for a segment" type="search" data-bind="value:searchInput, valueUpdate:'keyup'"></input>
       <ul id="segment-list" data-bind="foreach:filterSegments">
-        <a href="#" data-bind="click:$parent.selectSegment"> 
+        <a href="#" data-bind="click:$parent.changeSelected"> 
           <li data-bind="text:name"></li>
         </a>
       </ul>
