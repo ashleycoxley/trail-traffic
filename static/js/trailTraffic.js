@@ -13,26 +13,25 @@ var Segment = function(data, map) {
     content: "<b>" + data.name + "</b><br>"
   });
 
-  this.setTrafficData = ko.computed(function() {
-    var trafficURL = '/traffic/' + thisSegment.id();
-    var trafficResp = $.get(trafficURL, function(data) {
-      var trafficContent = "<b>" + thisSegment.name() + "</b><br>" +
-                            data.traffic_count.toString() +
-                            " bicyclists in the past 7 days";
-      thisSegment.infoWindow.setOptions({
-        content: trafficContent
+  this.setTrafficData = function(trafficQuery) {
+    return ko.computed(function() {
+      var trafficURL = '/traffic/' + thisSegment.id() + '/' + trafficQuery.value();
+      var trafficResp = $.get(trafficURL, function(data) {
+        var trafficContent = "<b>" + thisSegment.name() + "</b><br>" +
+                             trafficQuery.name() + ': <b>' +
+                             data.traffic_count.toString() + "</b> bicyclists";
+        thisSegment.infoWindow.setOptions({
+          content: trafficContent
+        });
       });
     });
-    trafficResp.fail(function() {
-      alert("Strava traffic data failed to load. Try again later.");
-    });
-  });
+  };
 
   this.decodedSegment = ko.computed(function() {
     return google.maps.geometry.encoding.decodePath(data.map.polyline);
   });
 
-    this.mapLine = ko.computed(function() {
+  this.mapLine = ko.computed(function() {
     return new google.maps.Polyline({
       path: thisSegment.decodedSegment(),
       geodesic: true,
@@ -81,34 +80,60 @@ var Segment = function(data, map) {
     });
   });
 };
-  
+
+
+var TimePeriod = function(data) {
+  var thisTimePeriod = this;
+  this.name = ko.observable(data.name);
+  this.value = ko.observable(data.value);
+};
+
 
 var ViewModel = function() {
   var self = this;
   try {
     var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat:37.813536, lng:-122.178588},
-    zoom: 15,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+      center: {lat:37.813536, lng:-122.178588},
+      zoom: 15,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
     });
   } catch (error) {
     alert("There was an error loading Google Maps. Try again later.");
   }
   
   var segmentLines = [];
-  this.segmentList = ko.observableArray([]);
-  this.searchInput = ko.observable();
+  self.segmentList = ko.observableArray([]);
+  self.searchInput = ko.observable();
+  self.timePeriodList = ko.observableArray([]);
+  self.selectedTimePeriod = ko.observable();
 
   initialSegmentsResp = $.get('/segments/redwood', function(data) {
     var redwoodSegments = data.segments;
-    redwoodSegments.forEach(function(segment, idx) {
+    redwoodSegments.forEach(function(segment) {
       self.segmentList.push(new Segment(segment, map));
     });
   });
 
   initialSegmentsResp.fail(function() {
-      alert("Trail segments data failed to load. Try again later.");
+    alert("Trail segments data failed to load. Try again later.");
+  });
+
+  initialTimePeriodsResp = $.get('/time_periods', function(data) {
+    var timePeriods = data.time_periods;
+    timePeriods.forEach(function(time_period) {
+      self.timePeriodList.push(new TimePeriod(time_period));
     });
+  });
+
+  initialTimePeriodsResp.fail(function() {
+    alert("Traffic data failed to load. Try again later.");
+  });
+
+  this.changeTimePeriod = function() {
+    self.segmentList().forEach(function(segment) {
+      segment.setTrafficData(self.selectedTimePeriod());
+    });
+  };
 
   this.changeSelected = function(displayListItem) {
     self.segmentList().forEach(function(segment) {

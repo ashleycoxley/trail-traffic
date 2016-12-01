@@ -1,0 +1,36 @@
+{"time_periods": 
+	[
+		{
+			"name": "Current traffic",
+			"value": "current"
+		},
+		{
+			"name": "Average Saturdays",
+			"value": 5
+		},
+		{
+			"name": "Average Sundays",
+			"value": 6
+		},
+		{
+			"name": "Average Mondays",
+			"value": 0
+		},
+		{
+			"name": "Average Tuesdays",
+			"value": 1
+		},
+		{
+			"name": "Average Wednesdays",
+			"value": 2
+		},
+		{
+			"name": "Average Thursdays",
+			"value": 3
+		},
+		{
+			"name": "Average Fridays",
+			"value": 4
+		}
+	]	
+}
