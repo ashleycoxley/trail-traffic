@@ -3,6 +3,7 @@ import json
 from segment_data import traffic_data
 
 REDWOOD_SEGMENT_INFO_FILE = 'redwood_segment_info.json'
+TIME_PERIOD_DATA_FILE = 'time_periods.json'
 
 app = flask.Flask(__name__, static_url_path='')
 
@@ -20,10 +21,16 @@ def segments(park):
             return flask.jsonify(redwood_segment_info)
 
 
-@app.route('/traffic/<int:segment_id>')
-def get_traffic(segment_id):
-    # TODO: add different time periods. Current default: last 7 days
-    traffic_count = traffic_data.get_effort_count(segment_id)
+@app.route('/time_periods')
+def time_periods():
+    with open(TIME_PERIOD_DATA_FILE) as infile:
+        time_periods = json.load(infile)
+        return flask.jsonify(time_periods)
+
+
+@app.route('/traffic/<int:segment_id>/<time_parameter>')
+def get_traffic(segment_id, time_parameter):
+    traffic_count = traffic_data.get_traffic_count(segment_id, time_parameter)
     traffic_response = flask.jsonify({
         'segment_id': segment_id,
         'traffic_count': traffic_count})

@@ -83,3 +83,7 @@ celerybeat-schedule
 .venv/
 venv/
 ENV/
+
+# example data file 
+redwood_segment_info.json
+
