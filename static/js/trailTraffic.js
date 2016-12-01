@@ -14,11 +14,11 @@ var Segment = function(data, map) {
   });
 
   this.setTrafficData = ko.computed(function() {
-    var trafficURL = '/traffic/' + thisSegment.id();
+    var trafficURL = '/traffic/' + thisSegment.id() + '/current';
     var trafficResp = $.get(trafficURL, function(data) {
       var trafficContent = "<b>" + thisSegment.name() + "</b><br>" +
                             data.traffic_count.toString() +
-                            " bicyclists in the past 7 days";
+                            " bicyclists in the past 4 hours";
       thisSegment.infoWindow.setOptions({
         content: trafficContent
       });
@@ -32,7 +32,7 @@ var Segment = function(data, map) {
     return google.maps.geometry.encoding.decodePath(data.map.polyline);
   });
 
-    this.mapLine = ko.computed(function() {
+  this.mapLine = ko.computed(function() {
     return new google.maps.Polyline({
       path: thisSegment.decodedSegment(),
       geodesic: true,

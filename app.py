@@ -20,10 +20,9 @@ def segments(park):
             return flask.jsonify(redwood_segment_info)
 
 
-@app.route('/traffic/<int:segment_id>')
-def get_traffic(segment_id):
-    # TODO: add different time periods. Current default: last 7 days
-    traffic_count = traffic_data.get_effort_count(segment_id)
+@app.route('/traffic/<int:segment_id>/<time_parameter>')
+def get_traffic(segment_id, time_parameter):
+    traffic_count = traffic_data.get_traffic_count(segment_id, time_parameter)
     traffic_response = flask.jsonify({
         'segment_id': segment_id,
         'traffic_count': traffic_count})
