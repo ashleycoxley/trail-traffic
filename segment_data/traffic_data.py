@@ -10,23 +10,19 @@ CALIFORNIA_TIMEZONE = "US/Pacific"
 
 
 def get_traffic_count(segment_id, time_parameter):
-    print time_parameter, type(time_parameter)
     if time_parameter == 'current':
         starttime_iso, endtime_iso = get_current_time_period_bounds(CALIFORNIA_TIMEZONE)
         traffic_count = strava_traffic_request(segment_id, starttime_iso, endtime_iso)
         return traffic_count
     elif time_parameter.isdigit:
         time_parameter = int(time_parameter)
-        last_4_dates = get_last_4_dates_for_weekday(time_parameter, CALIFORNIA_TIMEZONE)
+        recent_dates = get_recent_dates_for_weekday(time_parameter, CALIFORNIA_TIMEZONE)
         traffic_counts = []
-        for date in last_4_dates:
+        for date in recent_dates:
             starttime_iso, endtime_iso = get_weekday_time_period_bounds(date)
             traffic_count = strava_traffic_request(segment_id, starttime_iso, endtime_iso)
             traffic_counts.append(traffic_count)
-            print date, 'traffic count:', traffic_count
         avg_traffic_count = sum(traffic_counts) / len(traffic_counts)
-        print 'avg traffic:', avg_traffic_count
-        print '------------------\n'
         return avg_traffic_count
     else:
         raise ValueError("""Time period for Strava traffic data not understood.
@@ -39,7 +35,7 @@ def get_current_datetime(timezone_str):
     return datetime.datetime.now(tz)
 
 
-def get_last_4_dates_for_weekday(weekday_requested, timezone_str):
+def get_recent_dates_for_weekday(weekday_requested, timezone_str):
     current_datetime = get_current_datetime(timezone_str)
     current_weekday = current_datetime.weekday()
     if current_weekday == weekday_requested:  # Ignore today
@@ -50,11 +46,11 @@ def get_last_4_dates_for_weekday(weekday_requested, timezone_str):
     previous_weekday_date = (current_datetime - offset_timedelta).date()
 
     seven_day_timedelta = datetime.timedelta(days=7)
-    last_4_dates_for_weekday = [previous_weekday_date]
-    for i in range(3):
+    recent_dates_for_weekday = [previous_weekday_date]
+    for i in range(2):
         previous_weekday_date = previous_weekday_date - seven_day_timedelta
-        last_4_dates_for_weekday.append(previous_weekday_date)
-    return last_4_dates_for_weekday
+        recent_dates_for_weekday.append(previous_weekday_date)
+    return recent_dates_for_weekday
 
 
 def get_weekday_time_period_bounds(datetime_obj):

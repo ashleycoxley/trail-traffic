@@ -3,6 +3,7 @@ import json
 from segment_data import traffic_data
 
 REDWOOD_SEGMENT_INFO_FILE = 'redwood_segment_info.json'
+TIME_PERIOD_DATA_FILE = 'time_periods.json'
 
 app = flask.Flask(__name__, static_url_path='')
 
@@ -18,6 +19,13 @@ def segments(park):
         with open(REDWOOD_SEGMENT_INFO_FILE) as infile:
             redwood_segment_info = json.load(infile)
             return flask.jsonify(redwood_segment_info)
+
+
+@app.route('/time_periods')
+def time_periods():
+    with open(TIME_PERIOD_DATA_FILE) as infile:
+        time_periods = json.load(infile)
+        return flask.jsonify(time_periods)
 
 
 @app.route('/traffic/<int:segment_id>/<time_parameter>')
