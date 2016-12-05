@@ -31,11 +31,15 @@ def get_traffic_count(segment_id, time_parameter):
 
 
 def get_current_datetime(timezone_str):
+    """Get a datetime object representing the current time for a given 
+    timezone."""
     tz = pytz.timezone(timezone_str)
     return datetime.datetime.now(tz)
 
 
 def get_recent_dates_for_weekday(weekday_requested, timezone_str):
+    """Get a list of the 3 most recent instances of a given weekday. Returned
+    list contains datetime objects."""
     current_datetime = get_current_datetime(timezone_str)
     current_weekday = current_datetime.weekday()
     if current_weekday == weekday_requested:  # Ignore today
@@ -54,6 +58,8 @@ def get_recent_dates_for_weekday(weekday_requested, timezone_str):
 
 
 def get_weekday_time_period_bounds(datetime_obj):
+    """Get strings representing the beginning and end of a particular day,
+    to be used in a call to the Strava API."""
     start_time = datetime.datetime.combine(datetime_obj, datetime.time())
     next_day = datetime_obj + datetime.timedelta(days=1)
     end_time = datetime.datetime.combine(next_day, datetime.time())
@@ -62,12 +68,10 @@ def get_weekday_time_period_bounds(datetime_obj):
     return starttime_iso, endtime_iso
 
 
-def get_current_traffic(segment_id, timezone_str):
-    starttime_iso, endtime_iso = get_current_time_period_bounds(timezone_str)
-
-
 def get_current_time_period_bounds(timezone_str):
-    """Return time period bounds for Strava API segment efforts query."""
+    """Get ISO8601 strings representing the beginning and end of a 3-hour
+    window that ends at the current time, to be used in a call to the Strava
+    API."""
     current_datetime = get_current_datetime(timezone_str)
     starttime_iso = (current_datetime - datetime.timedelta(hours=4)).isoformat()
     endtime_iso = current_datetime.isoformat()
@@ -75,6 +79,9 @@ def get_current_time_period_bounds(timezone_str):
 
 
 def strava_traffic_request(segment_id, starttime_iso, endtime_iso):
+    """Given a Strava segment ID, and ISO8601 strings representing start/end
+    times, make a call to the Strava API and return a count of the number of
+    cyclists recorded."""
     auth_header = {'Authorization': "Bearer " + STRAVA_ACCESS_TOKEN}
     segment_traffic_url = TRAFFIC_URL % segment_id
     segment_traffic_params = {
