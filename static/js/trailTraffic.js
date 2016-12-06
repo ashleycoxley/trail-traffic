@@ -17,6 +17,7 @@ var Segment = function(data, map) {
     return ko.computed(function() {
       var trafficURL = '/traffic/' + thisSegment.id() + '/' + trafficQuery.value();
       var trafficResp = $.get(trafficURL, function(data) {
+        thisSegment.trafficCount(data.traffic_count);
         var trafficContent = "<b>" + thisSegment.name() + "</b><br>" +
                              trafficQuery.name() + ': <b>' +
                              data.traffic_count.toString() + "</b> bicyclists";
@@ -27,6 +28,23 @@ var Segment = function(data, map) {
     });
   };
 
+  this.trafficCount = ko.observable(0); // No traffic by default
+
+  this.trafficColor = ko.computed(function() {
+    // High value hard-coded at the moment
+    var high_value = 8;
+    var valuePCT = (parseInt(thisSegment.trafficCount(), 10) / high_value);
+    if (valuePCT > 1) {
+      valuePCT = 1;
+    }
+    // Conversion function takes a scaled hue [0,1]
+    var hue = ((1-valuePCT) * 120) / 360;
+    // Saturation and lightness set to produce red-green scale
+    var rgb = hslToRgb(hue, 1, 0.7);
+    var hex = '#' + RGBToHex(rgb[0], rgb[1], rgb[2]);
+    return hex;
+  });
+
   this.decodedSegment = ko.computed(function() {
     return google.maps.geometry.encoding.decodePath(data.map.polyline);
   });
@@ -35,7 +53,6 @@ var Segment = function(data, map) {
     return new google.maps.Polyline({
       path: thisSegment.decodedSegment(),
       geodesic: true,
-      strokeColor: '#FF0000',
       strokeOpacity: 1,
       strokeWeight: 3
     });
@@ -62,7 +79,7 @@ var Segment = function(data, map) {
       thisSegment.infoWindow.open(map);
     } else {
       thisSegment.mapLine().setOptions({
-        strokeColor: "#FF0000"
+        strokeColor: thisSegment.trafficColor()
       });
       thisSegment.infoWindow.close(map);
     }
@@ -157,6 +174,46 @@ var ViewModel = function() {
     });
   });
 };
+
+
+// Segment line color change functions borrowed from StackOverflow and
+// modified for my purposes:
+// http://stackoverflow.com/questions/17525215/calculate-color-values-from-green-to-red
+// http://stackoverflow.com/questions/7128675/from-green-to-red-color-depend-on-percentage
+// https://gist.github.com/lrvick/2080648
+
+function hslToRgb(h, s, l) {
+  var r, g, b;
+
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    function hue2rgb(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return [ r * 255, g * 255, b * 255 ];
+}
+
+function RGBToHex(r,g,b){
+    var bin = r << 16 | g << 8 | b;
+    return (function(h){
+        return new Array(7-h.length).join("0")+h;
+    })(bin.toString(16).toUpperCase());
+}
 
 
 function initializeMap() {
