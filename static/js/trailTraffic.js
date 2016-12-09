@@ -13,14 +13,14 @@ var Segment = function(data, map) {
     content: "<b>" + data.name + "</b><br>"
   });
 
-  this.setTrafficData = function(trafficQuery) {
+  this.setTrafficData = function(trafficQueryObj) {
     return ko.computed(function() {
-      var trafficURL = '/traffic/' + thisSegment.id() + '/' + trafficQuery.value();
+      var trafficURL = '/traffic/' + thisSegment.id() + '/' + trafficQueryObj.value();
       var trafficResp = $.get(trafficURL, function(data) {
         thisSegment.trafficCount(data.traffic_count);
         var trafficContent = "<b>" + thisSegment.name() + "</b><br>" +
-                             trafficQuery.name() + ': <b>' +
-                             data.traffic_count.toString() + "</b> bicyclists";
+                             trafficQueryObj.name() + ': ' +
+                             data.traffic_count.toString() + " bicyclists";
         thisSegment.infoWindow.setOptions({
           content: trafficContent
         });
@@ -40,7 +40,7 @@ var Segment = function(data, map) {
     // Conversion function takes a scaled hue [0,1]
     var hue = ((1-valuePCT) * 120) / 360;
     // Saturation and lightness set to produce red-green scale
-    var rgb = hslToRgb(hue, 1, 0.7);
+    var rgb = hslToRgb(hue, 1, 0.45);
     var hex = '#' + RGBToHex(rgb[0], rgb[1], rgb[2]);
     return hex;
   });
@@ -73,7 +73,7 @@ var Segment = function(data, map) {
   this.selectSegment = ko.computed(function() {
     if (thisSegment.segmentSelected() === true) {
       thisSegment.mapLine().setOptions({
-        strokeColor: "#000000"
+        strokeColor: 'gray'
       });
       thisSegment.infoWindow.setPosition(thisSegment.startPt());
       thisSegment.infoWindow.open(map);
@@ -92,7 +92,13 @@ var Segment = function(data, map) {
   });
 
   this.setSegmentUnclickHandler = ko.computed(function() {
-    google.maps.event.addListener(map, "click", function() {
+    map.addListener("click", function() {
+      thisSegment.segmentSelected(false);
+    });
+  });
+
+  this.infoWindowCloseHandler = ko.computed(function() {
+    google.maps.event.addListener(thisSegment.infoWindow, "closeclick", function() {
       thisSegment.segmentSelected(false);
     });
   });
@@ -109,20 +115,25 @@ var TimePeriod = function(data) {
 var ViewModel = function() {
   var self = this;
   try {
+    redwoodCenter = {lat:37.813536, lng:-122.178588}
     var map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat:37.813536, lng:-122.178588},
+      center: redwoodCenter,
       zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeControl: false,
     });
   } catch (error) {
     alert("There was an error loading Google Maps. Try again later.");
   }
   
+  google.maps.event.addDomListener(window, 'resize', function(){
+    map.setCenter(redwoodCenter);
+  });
+
   var segmentLines = [];
   self.segmentList = ko.observableArray([]);
   self.searchInput = ko.observable();
   self.timePeriodList = ko.observableArray([]);
-  self.selectedTimePeriod = ko.observable();
+  
 
   initialSegmentsResp = $.get('/segments/redwood', function(data) {
     var redwoodSegments = data.segments;
@@ -142,14 +153,32 @@ var ViewModel = function() {
     });
   });
 
+  self.selectedTimePeriod = ko.observable('current');
+
+  self.selectedTimePeriodObj = ko.computed(function() {
+    var tp = self.selectedTimePeriod();
+    return ko.utils.arrayFilter(self.timePeriodList(), function(tpObj) {
+      return tpObj.value() === tp;
+    });
+  });
+
   initialTimePeriodsResp.fail(function() {
     alert("Traffic data failed to load. Try again later.");
   });
 
+
   this.changeTimePeriod = function() {
+    $('.time-period-li').css({'background-color': 'white'});
+    var inputNode = $('input[value=' + self.selectedTimePeriod() + ']');
+    var listItem = inputNode.parent();
+    listItem.css({'background-color': 'rgba(211,77,204,0.2)'});
     self.segmentList().forEach(function(segment) {
-      segment.setTrafficData(self.selectedTimePeriod());
+      segment.setTrafficData(self.selectedTimePeriodObj()[0]);
     });
+    setTimeout(function() {
+       $('.mobile-slideout').removeClass('open');
+    }, 100);
+    return true;
   };
 
   this.changeSelected = function(displayListItem) {
@@ -214,6 +243,12 @@ function RGBToHex(r,g,b){
         return new Array(7-h.length).join("0")+h;
     })(bin.toString(16).toUpperCase());
 }
+
+
+$('.mobile-nav-button').click(function(e){
+  e.preventDefault();
+  $('.mobile-slideout').toggleClass('open');
+});
 
 
 function initializeMap() {
