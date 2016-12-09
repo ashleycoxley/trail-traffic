@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Trailway</title>
+    <title>Trailways</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <script type="text/javascript" src="js/knockout-3.4.1.js"></script>
@@ -9,17 +9,41 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-    <div class='sidebar'>
-      <img class='logo' src="{{url_for('static', filename='img/trailway_logo.png')}}"></img>
-      <h4>Redwood Regional Park</h4>
+    <div class='mobile'>
+      <div class='mobile-header shadow'>
+        <button class='mobile-nav-button'> 
+          <img src="{{url_for('static', filename='img/ic_menu_black_24px.svg')}}">
+        </button>
+        <input class='sidebar-control' id='search-input-mobile' placeholder="Search for a segment" type="search" data-bind="value:searchInput, valueUpdate:'keyup'"></input>
+      </div>
+      <div class='mobile-slideout shadow'>
+        <ul id='time-period-list' data-bind='foreach:timePeriodList'>
+          <label>
+            <li class='time-period-li'>
+              <span class='mobile-time-period-text' data-bind='text:name'></span>
+              <input type="radio" name='time-period-radio' data-bind="attr:{value:value}, checked:$root.selectedTimePeriod, click:$root.changeTimePeriod"></input>
+            </li>
+          </label>
+        </ul>
+        <div class='mobile-logo-box'>
+          <img class='logo' src="{{url_for('static', filename='img/logo.png')}}">
+        </div>
+      </div>
+    </div>
+    <div class='sidebar shadow'>
+      <img class='logo' src="{{url_for('static', filename='img/logo.png')}}"></img>
+      <h4>REDWOOD REGIONAL PARK</h4>
       <div class='control-box'>
-        <select data-bind="options:timePeriodList, optionsText:'name', value:selectedTimePeriod, event:{change:changeTimePeriod}"></select>
-        <input placeholder="Search for a segment" type="search" data-bind="value:searchInput, valueUpdate:'keyup'"></input>
+        <select class='sidebar-control' id='time-dropdown' data-bind="options:timePeriodList, optionsValue:'value', optionsText:'name', value:selectedTimePeriod, event:{change:changeTimePeriod}"></select>
+        <input class='sidebar-control' id='search-input-desktop' placeholder="SEARCH SEGMENTS" type="search" data-bind="value:searchInput, valueUpdate:'keyup'"></input>
         <ul id="segment-list" data-bind="foreach:filterSegments">
           <a href="#" data-bind="click:$parent.changeSelected"> 
-            <li data-bind="text:name"></li>
+            <li class='segment-li' data-bind="text:name"></li>
           </a>
         </ul>
+        <div class='sidebar-footer'>
+          <img id='strava' src="{{url_for('static', filename='img/api_logo_pwrdBy_strava_horiz_gray.svg')}}">
+        </div>
       </div>
     </div>
     <div id="map"></div>
