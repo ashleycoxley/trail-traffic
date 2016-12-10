@@ -4,8 +4,8 @@ var Segment = function(data, map) {
   this.name = ko.observable(data.name);
 
   this.startPt = ko.computed(function() {
-    var lat = data.start_latlng[0];
-    var lng = data.start_latlng[1];
+    var lat = data.start_pt[0];
+    var lng = data.start_pt[1];
     return new google.maps.LatLng(lat, lng);
   });
 
@@ -46,7 +46,7 @@ var Segment = function(data, map) {
   });
 
   this.decodedSegment = ko.computed(function() {
-    return google.maps.geometry.encoding.decodePath(data.map.polyline);
+    return google.maps.geometry.encoding.decodePath(data.polyline);
   });
 
   this.mapLine = ko.computed(function() {
@@ -129,7 +129,13 @@ var ViewModel = function() {
     map.setCenter(redwoodCenter);
   });
 
-  var segmentLines = [];
+  self.infoTooltip = "Trailways helps horseback riders and other " +
+    "trailgoers avoid run-ins with bicycles.<br/><br/>The 'current' option shows trail " +
+    "traffic in the last three hours, and the 'average weekday' option shows average " +
+    "traffic for that particular weekday in the last three weeks.<br/><br/>Traffic data " +
+    "is taken from the Strava API, and counts cyclists who are recording their ride " +
+    "using Strava. For this reason, traffic values here may be lower than their true " +
+    "value.";
   self.segmentList = ko.observableArray([]);
   self.searchInput = ko.observable();
   self.timePeriodList = ko.observableArray([]);

@@ -1,0 +1,54 @@
+{
+	"redwood_segments": [
+		{
+			"name": "Dunn Trail (upper)",
+			"id": 0,
+			"strava_ids": [6333339, 774229]
+		},
+		{
+			"name": "Dunn Trail (lower)",
+			"id": 1,
+			"strava_ids": [787455, 8524094]
+		},
+		{
+			"name": "West Ridge Trail",
+			"id": 2,
+			"strava_ids": [6976090, 799775]
+		},
+		{
+			"name": "Scout Camp Trail",
+			"id": 3,
+			"strava_ids": [3636730]
+		},
+		{
+			"name": "Baccharis Trail",
+			"id": 4,
+			"strava_ids": [7249957]
+		},
+		{
+			"name": "Redwood Peak Trail",
+			"id": 5,
+			"strava_ids": [653093]
+		},
+		{
+			"name": "Madrone Trail",
+			"id": 6,
+			"strava_ids": [6236074]
+		},
+		{
+			"name": "Roberts Ridge Trail",
+			"id": 7,
+			"strava_ids": [2000123]
+		},
+		{
+			"name": "Graham Trail",
+			"id": 8,
+			"strava_ids": [9069384,792515]
+		},
+		{
+			"name": "Tate Trail",
+			"id": 9,
+			"strava_ids": [1015847]
+		}
+	]
+}

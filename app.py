@@ -29,11 +29,11 @@ def time_periods():
         return flask.jsonify(time_periods)
 
 
-@app.route('/traffic/<int:segment_id>/<time_parameter>')
-def get_traffic(segment_id, time_parameter):
-    traffic_count = traffic_data.get_traffic_count(segment_id, time_parameter)
+@app.route('/traffic/<int:trail_id>/<time_parameter>')
+def get_traffic(trail_id, time_parameter):
+    traffic_count = traffic_data.get_traffic_count(trail_id, time_parameter)
     traffic_response = flask.jsonify({
-        'segment_id': segment_id,
+        'trail_id': trail_id,
         'traffic_count': traffic_count})
     return traffic_response
 

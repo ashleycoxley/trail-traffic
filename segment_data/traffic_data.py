@@ -2,17 +2,35 @@ import os
 import requests
 import datetime
 import pytz
+import json
 
 
 STRAVA_ACCESS_TOKEN = os.environ['STRAVA_ACCESS_TOKEN']
 TRAFFIC_URL = "https://www.strava.com/api/v3/segments/%s/all_efforts"
 CALIFORNIA_TIMEZONE = "US/Pacific"
+REDWOOD_SEGMENT_INPUT_FILE = 'redwood_segment_input.json'
 
 
-def get_traffic_count(segment_id, time_parameter):
+def build_segment_id_dict(segment_input_file):
+    with open(segment_input_file, 'r') as infile:
+        segments = json.load(infile).get('redwood_segments')
+    segment_id_dict = {}
+    for segment in segments:
+        print segment['id']
+        trail_id = segment['id']
+        strava_ids = segment['strava_ids']
+        segment_id_dict[trail_id] = strava_ids
+    print segment_id_dict
+    return segment_id_dict
+
+
+SEGMENT_ID_DICT = build_segment_id_dict(REDWOOD_SEGMENT_INPUT_FILE)
+
+
+def get_traffic_count(trail_id, time_parameter):
     if time_parameter == 'current':
         starttime_iso, endtime_iso = get_current_time_period_bounds(CALIFORNIA_TIMEZONE)
-        traffic_count = strava_traffic_request(segment_id, starttime_iso, endtime_iso)
+        traffic_count = get_traffic_total(trail_id, starttime_iso, endtime_iso)
         return traffic_count
     elif time_parameter.isdigit:
         time_parameter = int(time_parameter)
@@ -20,7 +38,7 @@ def get_traffic_count(segment_id, time_parameter):
         traffic_counts = []
         for date in recent_dates:
             starttime_iso, endtime_iso = get_weekday_time_period_bounds(date)
-            traffic_count = strava_traffic_request(segment_id, starttime_iso, endtime_iso)
+            traffic_count = get_traffic_total(trail_id, starttime_iso, endtime_iso)
             traffic_counts.append(traffic_count)
         avg_traffic_count = sum(traffic_counts) / len(traffic_counts)
         return avg_traffic_count
@@ -62,7 +80,7 @@ def get_weekday_time_period_bounds(datetime_obj):
     return starttime_iso, endtime_iso
 
 
-def get_current_traffic(segment_id, timezone_str):
+def get_current_traffic(timezone_str):
     starttime_iso, endtime_iso = get_current_time_period_bounds(timezone_str)
 
 
@@ -72,6 +90,16 @@ def get_current_time_period_bounds(timezone_str):
     starttime_iso = (current_datetime - datetime.timedelta(hours=4)).isoformat()
     endtime_iso = current_datetime.isoformat()
     return starttime_iso, endtime_iso
+
+
+def get_traffic_total(trail_id, starttime_iso, endtime_iso):
+    strava_segment_id_list = SEGMENT_ID_DICT[trail_id]
+    traffic_counts = []
+    for segment_id in strava_segment_id_list:
+        traffic_count = strava_traffic_request(segment_id, starttime_iso, endtime_iso)
+        traffic_counts.append(traffic_count)
+    traffic_total = sum(traffic_counts)
+    return traffic_total
 
 
 def strava_traffic_request(segment_id, starttime_iso, endtime_iso):
