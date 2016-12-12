@@ -42,6 +42,10 @@
           </a>
         </ul>
         <div class='sidebar-footer'>
+          <div class='tooltip'>
+            <img id='info' src="{{url_for('static', filename='img/ic_info_outline_black_24px.svg')}}">
+            <span class="tooltiptext" data-bind="html:infoTooltip"></span>
+          </div>
           <img id='strava' src="{{url_for('static', filename='img/api_logo_pwrdBy_strava_horiz_gray.svg')}}">
         </div>
       </div>
