@@ -115,7 +115,7 @@ var TimePeriod = function(data) {
 var ViewModel = function() {
   var self = this;
   try {
-    redwoodCenter = {lat:37.813536, lng:-122.178588}
+    redwoodCenter = {lat:37.810154, lng:-122.173620};
     var map = new google.maps.Map(document.getElementById('map'), {
       center: redwoodCenter,
       zoom: 15,
@@ -136,6 +136,7 @@ var ViewModel = function() {
     "is taken from the Strava API, and counts cyclists who are recording their ride " +
     "using Strava. For this reason, traffic values here may be lower than their true " +
     "value.";
+
   self.segmentList = ko.observableArray([]);
   self.searchInput = ko.observable();
   self.timePeriodList = ko.observableArray([]);
