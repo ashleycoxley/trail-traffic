@@ -203,6 +203,9 @@ select {
 
   .mobile-nav-button {
     outline: none;
+    border: none;
+    background-color: white;
+    height: 100%;
   }
   
   .mobile-nav-button>img {
