@@ -144,6 +144,7 @@ var ViewModel = function() {
 
   initialSegmentsResp = $.get('/segments/redwood', function(data) {
     var redwoodSegments = data.segments;
+    console.log('redwoodSegments', redwoodSegments)
     redwoodSegments.forEach(function(segment) {
       self.segmentList.push(new Segment(segment, map));
     });
