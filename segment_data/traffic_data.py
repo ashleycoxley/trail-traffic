@@ -16,11 +16,9 @@ def build_segment_id_dict(segment_input_file):
         segments = json.load(infile).get('redwood_segments')
     segment_id_dict = {}
     for segment in segments:
-        print segment['id']
         trail_id = segment['id']
         strava_ids = segment['strava_ids']
         segment_id_dict[trail_id] = strava_ids
-    print segment_id_dict
     return segment_id_dict
 
 
